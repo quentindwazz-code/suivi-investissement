@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Suivi d'investissements</title>
+
+<style>
+body{
+    font-family:Arial,Helvetica,sans-serif;
+    background:#f4f4f4;
+    margin:40px;
+}
+
+.container{
+    max-width:1000px;
+    margin:auto;
+}
+
+h1{
+    text-align:center;
+}
+
+.cards{
+    display:flex;
+    gap:20px;
+    margin:30px 0;
+}
+
+.card{
+    flex:1;
+    background:white;
+    padding:20px;
+    border-radius:10px;
+    box-shadow:0 0 10px rgba(0,0,0,.1);
+}
+
+.card h2{
+    margin:0;
+    font-size:18px;
+}
+
+.card p{
+    font-size:25px;
+    color:green;
+}
+
+form{
+    background:white;
+    padding:20px;
+    border-radius:10px;
+    box-shadow:0 0 10px rgba(0,0,0,.1);
+}
+
+input{
+    width:100%;
+    padding:10px;
+    margin:8px 0;
+}
+
+button{
+    padding:10px 20px;
+    background:#007BFF;
+    color:white;
+    border:none;
+    cursor:pointer;
+}
+
+table{
+    width:100%;
+    margin-top:30px;
+    border-collapse:collapse;
+    background:white;
+}
+
+th,td{
+    border:1px solid #ddd;
+    padding:10px;
+    text-align:center;
+}
+
+th{
+    background:#007BFF;
+    color:white;
+}
+
+.supprimer{
+    background:red;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<h1>📈 Suivi d'investissements</h1>
+
+<div class="cards">
+
+<div class="card">
+<h2>Investi</h2>
+<p id="investi">0 €</p>
+</div>
+
+<div class="card">
+<h2>Bénéfice</h2>
+<p id="benefice">0 €</p>
+</div>
+
+</div>
+
+<form id="form">
+
+<input type="text" id="nom" placeholder="Nom du produit" required>
+
+<input type="text" id="niche" placeholder="Niche">
+
+<input type="number" id="achat" placeholder="Prix d'achat" required>
+
+<input type="number" id="vente" placeholder="Prix de vente" required>
+
+<input type="number" id="livraison" placeholder="Frais de livraison" value="0">
+
+<button>Ajouter</button>
+
+</form>
+
+<table>
+
+<thead>
+
+<tr>
+<th>Produit</th>
+<th>Niche</th>
+<th>Achat</th>
+<th>Vente</th>
+<th>Livraison</th>
+<th>Profit</th>
+<th>Action</th>
+</tr>
+
+</thead>
+
+<tbody id="liste"></tbody>
+
+</table>
+
+</div>
+
+<script>
+
+let investissements = JSON.parse(localStorage.getItem("investissements")) || [];
+
+function sauvegarder(){
+    localStorage.setItem("investissements",JSON.stringify(investissements));
+}
+
+function afficher(){
+
+    let tbody=document.getElementById("liste");
+    tbody.innerHTML="";
+
+    let totalInvesti=0;
+    let totalBenefice=0;
+
+    investissements.forEach((item,index)=>{
+
+        totalInvesti+=item.achat;
+
+        let profit=item.vente-item.achat-item.livraison;
+
+        totalBenefice+=profit;
+
+        tbody.innerHTML+=`
+        <tr>
+        <td>${item.nom}</td>
+        <td>${item.niche}</td>
+        <td>${item.achat} €</td>
+        <td>${item.vente} €</td>
+        <td>${item.livraison} €</td>
+        <td>${profit} €</td>
+        <td>
+        <button class="supprimer" onclick="supprimer(${index})">Supprimer</button>
+        </td>
+        </tr>
+        `;
+
+    });
+
+    document.getElementById("investi").innerHTML=totalInvesti+" €";
+    document.getElementById("benefice").innerHTML=totalBenefice+" €";
+
+}
+
+function supprimer(index){
+
+    investissements.splice(index,1);
+
+    sauvegarder();
+
+    afficher();
+
+}
+
+document.getElementById("form").addEventListener("submit",function(e){
+
+    e.preventDefault();
+
+    investissements.push({
+
+        nom:document.getElementById("nom").value,
+
+        niche:document.getElementById("niche").value,
+
+        achat:Number(document.getElementById("achat").value),
+
+        vente:Number(document.getElementById("vente").value),
+
+        livraison:Number(document.getElementById("livraison").value)
+
+    });
+
+    sauvegarder();
+
+    afficher();
+
+    this.reset();
+
+});
+
+afficher();
+
+</script>
+
+</body>
+</html>
